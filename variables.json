@@ -1,0 +1,15 @@
+{
+	"title": "Les tueries de masses perpétrées aux Etats-Unis depuis 2015",
+	"description": "",
+	"authors": "Paul Ronga",
+	"imgSocial": "social.jpg",
+
+	"navBarStyle": "black",
+	"navBarOffset": "0",
+	"navBarLocked": false,
+
+	"partner": {
+		"logo": "img/empty.png",
+		"link": "http://www.letemps.ch/"
+	}
+}

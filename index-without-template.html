@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8" />
+  <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+  <link rel="stylesheet" href="css/ion.rangeSlider.css" />
+
+  <style type="text/css">
+  /* toolbar */
+  label{
+    font-weight: bold;
+    margin: .5em 0 0 0;
+  }
+
+  /* map */
+
+  .chart  {
+    max-width: 900px;
+    margin: auto;
+  }
+  .chart svg{
+    width: 100%;
+  }
+  .small{
+    font-size: .9em;
+  }
+  .states {
+    fill: #ececec;
+    stroke: #fff;
+    stroke-width: 1px;
+  }
+
+  .points {
+    fill: #b80021;
+    fill-opacity: 0.5;
+  }
+
+  .hoveredpoints {
+    fill: #6c0013;
+    fill-opacity: 0.6;
+    stroke:white;
+    stroke-opacity:1;
+  }
+
+  .mouseover {
+    stroke: #f0f;
+    stroke-opacity:0.2;
+    stroke-alignment: outer;
+  }
+
+  .tooltip {
+    font-size: 11px;
+    width: 110px;
+    background: rgba(255,255,255,0.9);
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .tooltip p {
+    padding-bottom:4px;
+  }
+
+  .tooltip #click {
+    font-size:9px;
+    font-style: italic;
+    border-bottom: none;
+    color:grey;
+  }
+
+  .tooltip:after {
+    width: 110px;
+    display: block;
+    color: white;
+    opacity: 0.85;
+    content: "\25BC";
+    position: absolute;
+    text-align: center;
+    pointer-events: none;
+  }
+
+
+  #chart{
+    margin:2%;
+  }
+
+
+  .shooting-details {
+    background: #fff;
+    padding: .5em;
+    width: 100%;
+    word-wrap: break-word;
+  }
+
+  .shooting-details h4 {
+  }
+  .shooting-details p {
+    font-size: .9em;
+    margin: 0 0 3px 0;
+  }
+
+
+  .shooting-details .stats {
+    font-weight: bold;
+    color: #777;
+  }
+  .shooting-details .summary {
+    /* display: none; */
+  }
+
+  ul {
+      list-style-type: disc;
+      padding-left:1em;
+      margin-left:1em;
+  }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+		<div class="row">
+			<div class="offset-md-2 col-md-8 col-sm-12">
+				<h1 class="intro">Les tueries de masse perpétrées aux Etats-Unis depuis 2015</h1>
+				<p class="lead">Selon une base de données tenue à jour par le magazine <i>Mother Jones</i>, ces fusillades ont causé près de 400 morts de 2015 à août 2019.</p>
+
+				<p>Les 3 et 4 août, deux carnages ont eu lieu au Texas (20 morts) et dans l’Ohio (10 morts, dont le tueur). Le 31 mai, 13 autres personnes sont décédées lors d’une tuerie de masse à Virginia Beach, en Virginie. Dans l’écrasante majorité des cas, selon les <a target="_blank" href="https://www.motherjones.com/politics/2012/07/mass-shootings-map/">données récoltées par le magazine <i>Mother Jones</i></a>, ces tueries sont perpétrées par un homme seul (41 cas sur 43). Dans 70% des cas, les armes ont été achetées légalement.</p>
+
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-3 offset-md-1 col-sm-10 offset-sm-1">
+					<label>Filtrer par date</label>
+					<input type="text" id="range_slider" />
+				</div>
+				<div class="col-md-3 col-sm-10 offset-sm-1">
+					<label>Arme obtenue légalement</label>
+					<select class="form-control form-control form-control-sm" id="legalWeapon">
+					 <option value="-2">Tout montrer</option>
+					 <option value="1">Oui</option>
+					 <option value="0">Non</option>
+					 <option value="-1">Indéterminé</option>
+				 </select>
+				</div>
+				<div class="col-md-2 col-sm-10 offset-sm-1">
+					<label>Genre de l’attaquant</label>
+					<select class="form-control form-control form-control-sm" id="genre">
+					 <option value="-1">Tout montrer</option>
+					 <option value="M">Homme</option>
+					 <option value="F">Femme</option>
+					 <option value="MF">Un homme et une femme</option>
+				 </select>
+				</div>
+			</div>
+			<div class="row">
+
+				<div class="col-lg-9 col-sm-12">
+					<div id="chart" class="chart">
+						<div class="tooltip"></div>
+					</div>
+				</div>
+
+				<div class="col-lg-3 col-sm-12">
+					<div class="shooting-details">
+						<h4></h4>
+						<p>Cliquer/toucher un cercle pour plus d’informations.</p>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="row">
+				<div class="col-lg-12 col-sm-12">
+					<p class="small text-right">Données: <a href="https://www.motherjones.com/politics/2012/07/mass-shootings-map" target="new">Mother Jones</a>, infographie: Paul Ronga, sur la base d’une <a href="https://gist.github.com/xujenna/25db2af0bf59950d7390ceeba187df42">visualisation de Jenna Xu</a></p>
+					<p><b>Lire aussi:</b> </p>
+					<ul>
+						<li> <a href="https://www.letemps.ch/opinions/fusillades-masse-une-amerique-sonnee-un-climat-haine">Fusillades de masse: une Amérique sonnée par un climat de haine</a></li>
+						<li> <a href="https://www.letemps.ch/monde/supremacisme-blanc-nouvelle-menace">Le suprémacisme blanc, la nouvelle menace</a></li>
+						<li> <a href="https://www.letemps.ch/monde/8chan-forum-jeu-supremacistes-blancs">8chan, le forum qui fait le jeu des suprémacistes blancs</a></li>
+					</ul>
+
+					<p class="small"><b>Note.</b> <i>Mother Jones</i> emploie la définition de «tuerie de masse» <i>(mass murder)</i> du gouvernement américain: une seule attaque, dans un lieu public, causant la mort d’au moins trois personnes (le seuil était de quatre personnes jusqu’en janvier 2013 avant d’être abaissé).
+						Cette notion ne doit pas être confondue avec celle de «fusillade de masse» <i>(mass shooting)</i>, qui prend en compte les personnes touchées (blessées ou tuées).</p>
+						<!-- En 2005, <a href="https://www.motherjones.com/politics/2012/07/mass-shootings-map/">comme l’explique le magazine</a>, le FBI et des criminologues avaient fixé le seuil à quatre décès. Le gouvernement l’a abaissé à trois victimes en janvier 2013. -->
+				</div>
+			</div>
+		</div>
+
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>
+		<script src="http://d3js.org/topojson.v1.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
+		<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script src="js/ion.rangeSlider.js"></script>
+
+		<script type="text/javascript">
+
+		var filters = {
+			'date': null,
+			'legal': null,
+			'gender': null
+		}
+		var margin = {top: 0, right: 10, bottom: 10, left: 10};
+
+		var width = 1500 - margin.left - margin.right,
+		height = 760 - margin.top - margin.bottom;
+
+
+		var projection = d3.geo.mercator();
+
+		var path = d3.geo.path()
+		.projection(projection);
+
+
+		queue()
+		.defer(d3.json, "data/us.json")
+		.defer(d3.csv, "data/shootings_fr.csv")
+		.await(ready);
+
+		function ready(err, us, shootings) {
+			if (err) console.warn(err, "error loading data");
+
+			var topo = topojson.feature(us, us.objects.states).features
+
+			projection
+			.scale(990)
+			.center([-98, 40])
+
+			var svg = d3.select(".chart").append("svg")
+			.append("g")
+			.attr('id', 'container');
+
+			var coordinates = [];
+
+			shootings.forEach(function(d) {
+				d.Fatalities = +d.fatalities;
+				d["Total victims"] = +d["total_victims"];
+				d.Wounded = +d.injured;
+				d.latitude = +d.latitude;
+				d.longitude = +d.longitude;
+				d.coordinates = [d.longitude, d.latitude];
+			});
+
+			shootings = shootings.sort(function (a,b) {return d3.descending(a.Fatalities, b.Fatalities); });
+
+			svg.selectAll("path")
+			.data(topo)
+			.enter()
+			.append("path")
+			.attr("class", "states")
+			.attr("d", path);
+
+			svg.selectAll("circle")
+			.data(shootings)
+			.enter()
+			.append("circle")
+			.attr("cx", function(d) {return projection(d.coordinates)[0];})
+			.attr("cy", function(d) {return projection(d.coordinates)[1];})
+			.attr("r", function(d) {return d.Fatalities + "px";})
+			.attr("class", "points")
+			.on("mouseover", function(d) {
+				d3.select(this)
+				.classed("mouseover", true)
+				.attr("class", "hoveredpoints")
+			})
+			.on("click", function(d) {
+				if(applyFilters(d) == 1){
+					updateDetail(d);
+				}
+			})
+			.on("mouseout", function(d) {
+				d3.select(this)
+				.attr("r", function(d) {return d.Fatalities + "px";})
+				.attr("class", "points")
+				.classed("mouseover", false);
+			});
+
+			// right details panel
+			function updateDetail(d) {
+				var summary_fr = '';
+				var link_fr = '';
+				if(d['link-fr']){
+					link_fr = '<p><a href="' + d['link-fr'] + '">Lire l’article sur letemps.ch</a>'
+				}
+				if(d['summary-fr']){
+					summary_fr = '<p class="summary"><span class="stats">Résumé</span> ' + d['summary-fr'] + '</p>';
+				}
+				var updateDetail = d3.select(".shooting-details")
+				.html(function() {
+					return "<h4>" + d.case_fr + "</h4>" + "<p><p><span class='stats'>" + "Date: </span>" + d['date-fr'] + "</p><p><span class='stats'>Lieu: </span>" + d.location + "</p><p><span class='stats'>Tués: </span>" + d.Fatalities + "</p><p><span class='stats'>Blessés: </span>" + d.Wounded + "</p></p><p><span class='stats'>" +  "Armes obtenues légalement? </span>" + d.weapons_obtained_legally + "</p>" + summary_fr + link_fr + "<p><span class='stats'>Source ou article (en anglais):</span> " + '<a target="_blank" href="' + d['first-source'] + '">' + d['first-source-short'] + "/…</a></p>"; })
+					.style('opacity', 1);
+				}
+
+				function sizeChange() {
+					d3.select("g#container").attr("transform", "scale(" + $("#chart").width()/1000 + ")");
+					$(".chart svg").height($("#chart").width()*0.58);
+				}
+				d3.select(window)
+				.on("resize", sizeChange);
+
+				sizeChange();
+
+				function applyFilters(d){
+					if(filters['date']){
+						if((d.ts > filters['date']['range_to']) || (d.ts < filters['date']['range_from'])){
+							return 0;
+						}
+					}
+					if(filters['legal']){
+						 if(d.weapons_legally_simple != filters['legal']){
+							 return 0;
+						 }
+					}
+					if(filters['genre']){
+						if(d.gender != filters['genre']){
+							return 0;
+						}
+					}
+					return 1;
+				}
+
+				// FILTER UPDATES
+				// for a given year
+				function update_data_range(range_from, range_to){
+					filters['date'] = {'range_from': range_from, 'range_to': range_to}
+
+					svg.selectAll("circle")
+						.transition()
+						.duration(200)
+						.style('opacity', function(d){
+							return applyFilters(d);
+						});
+				}
+				// weapon is legal?
+				function update_legal(is_legal){
+					if(is_legal == -2){
+						filters['legal'] = null;
+					}else{
+						filters['legal'] = is_legal;
+					}
+
+					svg.selectAll("circle")
+						.transition()
+						.duration(200)
+						.style('opacity', function(d){
+							return applyFilters(d);
+						});
+				}
+
+				function update_genre(genre){
+					if(genre == -1){
+						filters['genre'] = null;
+					}else{
+						filters['genre'] = genre;
+					}
+					svg.selectAll("circle")
+						.transition()
+						.duration(200)
+						.style('opacity', function(d){
+							return applyFilters(d);
+						});
+				}
+
+
+				// slider
+
+				var date_spans = Array(['2015', '2016', '2017', '2018', '2019']);
+
+				// $("#range_slider").ionRangeSlider({
+				// 	type: "double",
+				// 	grid: true,
+				// 	min: 2015,
+				// 	max: 2019,
+				// 	drag_interval: true,
+				// 	onFinish: function(data){
+				// 		update_data_range(data.from, data.to);
+				// 	}
+				// });
+
+				$("#legalWeapon").change(function(){
+					update_legal($(this).val())
+				});
+				$("#genre").change(function(){
+					update_genre($(this).val())
+				});
+
+		// pour dates plus precises
+		var lang = "fr-FR";
+    var year = 2018;
+
+    function dateToTS (date) {
+        return date.valueOf();
+    }
+
+    function tsToDate (ts) {
+        var d = new Date(ts);
+
+        return d.toLocaleDateString(lang, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+
+    $("#range_slider").ionRangeSlider({
+        type: "double",
+        grid: true,
+        min: dateToTS(new Date(2015, 0, 1)),
+        max: dateToTS(new Date(2019, 7, 31)),
+        from: dateToTS(new Date(2015, 0, 1)),
+        to: dateToTS(new Date(2019, 7, 31)),
+        prettify: tsToDate,
+				drag_interval: true,
+					onFinish: function(data){
+						update_data_range(data.from, data.to);
+					}
+    });
+			}
+
+
+
+
+
+			</script>
+</body>
+</html>
